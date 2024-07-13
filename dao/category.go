@@ -5,6 +5,16 @@ import (
 	"log"
 )
 
+func GetCategoryNameById(id int) string {
+	row := DB.QueryRow("select * from blog_category where cid = ?", id)
+	if row.Err() != nil {
+		log.Println(row.Err())
+	}
+	var categoryName string
+	_ = row.Scan(&categoryName)
+	return categoryName
+}
+
 func GetAllCategory() ([]models.Category, error) {
 	rows, err := DB.Query("select * from blog_category")
 	if err != nil {

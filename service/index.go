@@ -4,32 +4,46 @@ import (
 	"hao/config"
 	"hao/dao"
 	"hao/models"
+	"html/template"
 )
 
-func GetAllIndexInfo() (*models.HomeResponse, error) {
+func GetAllIndexInfo(page, pageSize int) (*models.HomeResponse, error) {
 	//页面上涉及到的所有数据，必须有定义
 	categorys, err := dao.GetAllCategory()
 	if err != nil {
 		return nil, err
 	}
 
-	var posts = []models.PostMore{
-		{
-			Pid:          1,
-			Title:        "go博客",
-			Content:      "内容",
-			UserName:     "haoge",
-			ViewCount:    123,
-			CreateAt:     "2022-02-20",
-			CategoryId:   1,
-			CategoryName: "go",
-			Type:         0,
-		},
+	posts, err := dao.GetPostPage(page, pageSize)
+	var postMores []models.PostMore
+	for _, post := range posts {
+		categoryName := dao.GetCategoryNameById(post.CategoryId)
+		userName := dao.GetUserNameById(post.UserId)
+		content := []rune(post.Content)
+		if len(content) > 100 {
+			content = content[0:100]
+		}
+		postMore := models.PostMore{
+			post.Pid,
+			post.Title,
+			post.Slug,
+			template.HTML(content),
+			post.CategoryId,
+			categoryName,
+			post.UserId,
+			userName,
+			post.ViewCount,
+			post.Type,
+			models.DateDay(post.CreateAt),
+			models.DateDay(post.UpdateAt),
+		}
+		postMores = append(postMores, postMore)
+
 	}
 	var hr = &models.HomeResponse{
 		config.Cfg.Viewer,
 		categorys,
-		posts,
+		postMores,
 		1,
 		1,
 		[]int{1},

@@ -6,7 +6,7 @@ import (
 )
 
 func GetCategoryNameById(id int) string {
-	row := DB.QueryRow("select * from blog_category where cid = ?", id)
+	row := DB.QueryRow("select name from blog_category where cid = ?", id)
 	if row.Err() != nil {
 		log.Println(row.Err())
 	}

@@ -2,6 +2,12 @@ package dao
 
 import "hao/models"
 
+func CountGetAllPost() (count int) {
+	rows := DB.QueryRow("select count(1) from blog_post ")
+	_ = rows.Scan(&count)
+	return
+}
+
 func GetPostPage(page, pageSize int) ([]models.Post, error) {
 	page = (page - 1) * pageSize
 	rows, err := DB.Query("select * from blog_post limit ?,?", page, pageSize)
